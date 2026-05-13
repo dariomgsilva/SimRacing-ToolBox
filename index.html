@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimRacing ToolBox v1.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --accent: #ef4444; }
+        body { background-color: #030303; font-family: 'Inter', sans-serif; color: #e5e7eb; }
+        .racing-font { font-family: 'Rajdhani', sans-serif; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        .sidebar { 
+            background-color: rgba(0, 0, 0, 0.8); 
+            background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png");
+            border-right: 1px solid #1a1a1a;
+            backdrop-filter: blur(20px);
+        }
+
+        .glass { 
+            background: rgba(255, 255, 255, 0.02); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .glass:hover { 
+            background: rgba(255, 255, 255, 0.06); 
+            transform: translateY(-5px);
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+
+        .card:active { transform: scale(0.96); transition: 0.1s; }
+
+        .logo-container { width: 80px; height: 80px; transition: all 0.4s ease; }
+        .card:hover .logo-container { transform: scale(1.1) rotate(-3deg); filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.3)); }
+
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .search-input { 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            transition: all 0.3s ease;
+        }
+        .search-input:focus { 
+            border-color: var(--accent); 
+            background: rgba(255,255,255,0.07);
+            outline: none; 
+        }
+
+        .category-btn { border-left: 3px solid transparent; transition: all 0.3s; }
+        .category-btn.active { 
+            border-left-color: var(--accent); 
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, transparent 100%);
+            color: white; 
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="w-72 sidebar flex flex-col p-6 z-10">
+        <div class="mb-10">
+            <h1 class="text-2xl font-black italic racing-font tracking-tighter text-white">SIMRACING <span class="text-red-600">TOOLBOX</span></h1>
+            <div class="flex items-center gap-2 mt-1">
+                <span class="h-[1px] w-4 bg-red-600"></span>
+                <p class="text-[10px] text-gray-400 font-bold tracking-[0.2em]">VERSION 1.0</p>
+            </div>
+        </div>
+
+        <div class="relative mb-10">
+            <input type="text" id="searchInput" onkeyup="searchTools()" placeholder="SEARCH TOOLS..." 
+                   class="w-full py-3 px-4 rounded-xl text-xs search-input text-white font-medium">
+        </div>
+
+        <nav class="flex-1 space-y-1">
+            <button onclick="filter('all')" id="btn-all" class="category-btn active w-full text-left p-3 text-sm rounded-r-lg hover:bg-white/5 font-medium text-gray-400">All Tools</button>
+            <button onclick="filter('wheel')" class="category-btn w-full text-left p-3 text-sm rounded-r-lg hover:bg-white/5 font-medium text-gray-400">Hardware & Pedals</button>
+            <button onclick="filter('overlays')" class="category-btn w-full text-left p-3 text-sm rounded-r-lg hover:bg-white/5 font-medium text-gray-400">Overlays</button>
+            <button onclick="filter('spotters')" class="category-btn w-full text-left p-3 text-sm rounded-r-lg hover:bg-white/5 font-medium text-gray-400">Spotters</button>
+            <button onclick="filter('util')" class="category-btn w-full text-left p-3 text-sm rounded-r-lg hover:bg-white/5 font-medium text-gray-400">Telemetry & Others</button>
+        </nav>
+
+        <div class="mt-auto space-y-3">
+            <div class="p-4 bg-white/[0.02] rounded-xl border border-white/5">
+                <!-- TEXTO ALTERADO ABAIXO -->
+                <p class="text-[10px] text-gray-400 leading-relaxed italic">Links lead directly to official download pages. No auto-downloads.</p>
+            </div>
+            <div class="p-4 bg-red-600/5 border border-red-600/10 rounded-xl">
+                <p class="text-[10px] text-gray-500 leading-relaxed font-medium"><strong class="text-gray-400">Disclaimer:</strong> Logos are property of their respective owners.</p>
+            </div>
+            
+            <div class="px-1 pt-1 opacity-60">
+                <p id="appCount" class="text-sm font-bold text-white italic racing-font tracking-widest">0 CARDS</p>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-12 bg-[#050505]">
+        <div class="fixed top-0 right-0 w-[500px] h-[500px] bg-red-600/5 blur-[120px] rounded-full -z-0"></div>
+        <div id="toolsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 relative z-10"></div>
+    </main>
+
+    <script>
+        const tools = [
+            { name: "Asetek", cat: "wheel", url: "https://www.asetek.com/simsports/racehub/", img: "asetek.png" },
+            { name: "Conspit", cat: "wheel", url: "https://conspit.com/download", img: "conspit.png" },
+            { name: "Fanatec", cat: "wheel", url: "https://www.fanatec.com/", img: "fanatec.png" },
+            { name: "Heusinkveld", cat: "wheel", url: "https://heusinkveld.com/", img: "heusinkveld.png" },
+            { name: "Moza Racing", cat: "wheel", url: "https://mozaracing.com/", img: "moza.png" },
+            { name: "Simagic", cat: "wheel", url: "https://simagic.com/", img: "simagic.png" },
+            { name: "Simucube", cat: "wheel", url: "https://simucube.com/", img: "simucube.png" },
+            { name: "VRS", cat: "wheel", url: "https://vrs.racing/", img: "vrs.png" },
+            { name: "VNM", cat: "wheel", url: "https://vnmsimulation.com/", img: "vnm.png" },
+            { name: "Thrustmaster", cat: "wheel", url: "https://thrustmaster.com/", img: "thrustmaster.png" },
+            { name: "Simnet", cat: "wheel", url: "https://simnetracing.com/", img: "simnet.png" },
+            { name: "SimLab", cat: "wheel", url: "https://sim-lab.eu/", img: "simlab.png" },
+            { name: "Logitech", cat: "wheel", url: "https://logitechg.com/", img: "logitech.png" },
+            { name: "Cammus", cat: "wheel", url: "https://cammusracing.com/", img: "cammus.png" },
+            { name: "Cube Controls", cat: "wheel", url: "https://cubecontrols.com/", img: "cubecontrols.png" },
+            { name: "Simsonn", cat: "wheel", url: "https://simsonn.com/", img: "simsonn.png" },
+            { name: "PXN", cat: "wheel", url: "https://e-pxn.com/", img: "pxn.png" },
+            { name: "Bloops", cat: "overlays", url: "https://bloo.ps/", img: "bloops.png" },
+            { name: "IrDashies", cat: "overlays", url: "https://irdashies.com/", img: "irdashies.png" },
+            { name: "Edge Overlays", cat: "overlays", url: "https://edgeoverlays.com/", img: "edgeoverlays.png" },
+            { name: "iOverlay", cat: "overlays", url: "https://ioverlay.app/", img: "ioverlay.png" },
+            { name: "Kapps", cat: "overlays", url: "https://kapps.kutu.ru/", img: "kapps.png" },
+            { name: "KSR", cat: "overlays", url: "https://kimbo-simracing.com.ar/", img: "ksr.png" },
+            { name: "RaceLab", cat: "overlays", url: "https://racelab.app/", img: "racelab.png" },
+            { name: "TinyPedal", cat: "overlays", url: "https://github.com/TinyPedal/TinyPedal", img: "tinypedal.png" },
+            { name: "CrewChief", cat: "spotters", url: "https://thecrewchief.org/", img: "crewchief.png" },
+            { name: "DRE", cat: "spotters", url: "https://thedigitalraceengineer.com/", img: "dre.png" },
+            { name: "Garage61", cat: "util", url: "https://garage61.net/", img: "garage61.png" },
+            { name: "MAIRA", cat: "util", url: "https://mairapp.com/", img: "maira.png" },
+            { name: "Trading Paints", cat: "util", url: "https://tradingpaints.com/", img: "tradingpaints.png" },
+            { name: "irSidekick", cat: "util", url: "https://irsidekick.com/", img: "irsidekick.png" },
+            { name: "SimHub", cat: "util", url: "https://simhubdash.com/", img: "simhub.png" },
+            { name: "iRacing Manager", cat: "util", url: "https://members.iracing.com/", img: "iracingmanager.png" }
+        ];
+
+        const catConfig = {
+            'wheel': { name: 'Hardware & Pedals', color: 'text-red-400' },
+            'overlays': { name: 'Overlays', color: 'text-blue-400' },
+            'spotters': { name: 'Spotters', color: 'text-yellow-400' },
+            'util': { name: 'Telemetry & Others', color: 'text-emerald-400' }
+        };
+
+        tools.sort((a, b) => a.name.localeCompare(b.name));
+
+        const grid = document.getElementById('toolsGrid');
+        const countDisplay = document.getElementById('appCount');
+
+        function updateCount() {
+            const visibleCards = document.querySelectorAll('.card:not([style*="display: none"])').length;
+            countDisplay.innerText = `${visibleCards} CARDS`;
+        }
+
+        tools.forEach(tool => {
+            const config = catConfig[tool.cat] || { name: tool.cat, color: 'text-gray-500' };
+            grid.innerHTML += `
+                <a href="${tool.url}" target="_blank" data-cat="${tool.cat}" class="card glass p-6 rounded-2xl flex items-center group">
+                    <div class="logo-container bg-black/40 rounded-xl flex items-center justify-center mr-5 border border-white/5 shimmer">
+                        <img src="assets/${tool.img}" loading="lazy" class="max-w-[85%] max-h-[85%] object-contain relative z-10" onerror="this.parentElement.classList.remove('shimmer')">
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-lg group-hover:text-red-500 transition-colors">${tool.name}</h3>
+                        <p class="text-[9px] ${config.color} uppercase tracking-widest font-bold mt-1">${config.name}</p>
+                    </div>
+                </a>
+            `;
+        });
+
+        updateCount();
+
+        function filter(cat) {
+            document.querySelectorAll('.card').forEach(card => card.style.display = (cat === 'all' || card.dataset.cat === cat) ? 'flex' : 'none');
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('onclick').includes(cat)));
+            updateCount();
+        }
+
+        function searchTools() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.card').forEach(card => card.style.display = card.querySelector('h3').innerText.toLowerCase().includes(input) ? "flex" : "none");
+            updateCount();
+        }
+    </script>
+</body>
+</html>
